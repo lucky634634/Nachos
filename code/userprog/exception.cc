@@ -107,10 +107,6 @@ void ExceptionHandler(ExceptionType which)
         interrupt->Halt();
         return;
 
-        // case PageFaultException:
-        //     ASSERT(FALSE);
-        //     break;
-
     case SyscallException:
         switch (type)
         {
@@ -260,6 +256,54 @@ void ExceptionHandler(ExceptionType which)
         }
         break;
 
+    case PageFaultException:
+    {
+        printf("\nNo valid translation found.\n");
+        ASSERT(FALSE);
+        break;
+    }
+
+    case ReadOnlyException:
+    {
+        printf("\nWrite attempted to page marked \"read only\".\n");
+        ASSERT(FALSE);
+        break;
+    }
+
+    case BusErrorException:
+    {
+        printf("\nTranslation resulted in an invalid physical address\n");
+        ASSERT(FALSE);
+        break;
+    }
+
+    case AddressErrorException:
+    {
+        printf("\nUnaligned reference or one that was beyond the end of the address space.\n");
+        ASSERT(FALSE);
+        break;
+    }
+
+    case OverflowException:
+    {
+        printf("\nInteger overflow in add or sub.\n");
+        ASSERT(FALSE);
+        break;
+    }
+
+    case IllegalInstrException:
+    {
+        printf("\nUnimplemented or reserved instr.\n");
+        ASSERT(FALSE);
+        break;
+    }
+
+    case NumExceptionTypes:
+    {
+        printf("\nNumber Exception Types error.\n");
+        ASSERT(FALSE);
+        break;
+    }
     default:
         printf("\nUnexpected user mode exception (%d %d)", which, type);
         interrupt->Halt();
