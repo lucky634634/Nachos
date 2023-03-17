@@ -12,8 +12,7 @@
 
 #include "syscall.h"
 
-int
-main()
+int main()
 {
     Halt();
     /* not reached */

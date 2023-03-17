@@ -24,6 +24,7 @@
 #include "copyright.h"
 #include "system.h"
 #include "syscall.h"
+#include "filesys.h"
 #define MaxFileLength 255
 
 //----------------------------------------------------------------------
@@ -131,6 +132,16 @@ void ExceptionHandler(ExceptionType which)
             break;
         }
 
+        case SC_Exec:
+        {
+            break;
+        }
+
+        case SC_Join:
+        {
+            break;
+        }
+
         case SC_Create:
         {
             int virtAddr;
@@ -159,10 +170,78 @@ void ExceptionHandler(ExceptionType which)
                 delete[] filename;
                 return;
             }
-            printf("\nCreate file '%s'", filename);
             machine->WriteRegister(2, 0);
             IncreasePC();
             delete[] filename;
+            break;
+        }
+
+        case SC_Open:
+        {
+            int virtAddr = machine->ReadRegister(4);
+            int type = machine->ReadRegister(5);
+            char *filename;
+
+            if (fileSystem->size >= 10)
+            {
+                machine->WriteRegister(2, -1);
+                delete[] filename;
+                return;
+            }
+            filename = User2System(virtAddr, MaxFileLength + 1);
+
+            if (strcmp(filename, "stdin") == 0)
+            {
+                printf("Stdin mode\n");
+                machine->WriteRegister(2, 0);
+                delete[] filename;
+                return;
+            }
+
+            if (strcmp(filename, "stdout") == 0)
+            {
+                printf("Stdout mode\n");
+                machine->WriteRegister(2, 1);
+                delete[] filename;
+                return;
+            }
+
+            int nextSlot = fileSystem->size;
+            fileSystem->openFiles[nextSlot] = fileSystem->Open(filename);
+            if (fileSystem->openFiles[nextSlot] != NULL)
+            {
+                printf("\nOpen file '%s' successfully", filename);
+                fileSystem->size++;
+                machine->WriteRegister(2, nextSlot);
+            }
+            else
+            {
+                printf("\nCan not open file '%s'", filename);
+                machine->WriteRegister(2, -1);
+            }
+
+            delete[] filename;
+            IncreasePC();
+            break;
+        }
+
+        case SC_Write:
+        {
+            break;
+        }
+
+        case SC_Close:
+        {
+            break;
+        }
+
+        case SC_Fork:
+        {
+            break;
+        }
+
+        case SC_Yield:
+        {
             break;
         }
 

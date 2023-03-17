@@ -20,6 +20,7 @@ int main()
         print(filename);
         print(" successfully");
     }
-    Exit(2);
+    Open("text.txt", 1);
+    // Exit(2);
     Halt();
 }
