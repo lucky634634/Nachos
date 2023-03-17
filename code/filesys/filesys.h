@@ -72,14 +72,14 @@ public:
 		return TRUE;
 	}
 
-	OpenFile *Open(char *name)
+	OpenFile *Open(char *name, int type = 0)
 	{
 		int fileDescriptor = OpenForReadWrite(name, FALSE);
 
 		if (fileDescriptor == -1)
 			return NULL;
 
-		return new OpenFile(fileDescriptor);
+		return new OpenFile(fileDescriptor, type);
 	}
 
 	bool Remove(char *name) { return Unlink(name) == 0; }
@@ -101,7 +101,7 @@ public:
 	bool Create(char *name, int initialSize);
 	// Create a file (UNIX creat)
 
-	OpenFile *Open(char *name); // Open a file (UNIX open)
+	OpenFile *Open(char *name, int type = 0); // Open a file (UNIX open)
 
 	bool Remove(char *name); // Delete a file (UNIX unlink)
 

@@ -113,7 +113,7 @@ void ExceptionHandler(ExceptionType which)
         case SC_Halt:
         {
             DEBUG('a', "Shutdown, initiated by user program.\n");
-            printf("\n\nShutdown, initiated by user program\n");
+            printf("Shutdown, initiated by user program\n");
             interrupt->Halt();
             break;
         }
@@ -122,7 +122,7 @@ void ExceptionHandler(ExceptionType which)
         {
             int code = machine->ReadRegister(4);
             DEBUG('a', "Exit with code %d\n", code);
-            printf("\nExit with code %d\n", code);
+            printf("Exit with code %d\n", code);
             currentThread->Finish();
             IncreasePC();
             break;
@@ -141,7 +141,7 @@ void ExceptionHandler(ExceptionType which)
         case SC_Create:
         {
             int virtAddr;
-            char *filename;
+            char *filename = NULL;
 
             DEBUG('a', "\nSC_Create call ...");
             DEBUG('a', "\nReading virtual address of filename");
@@ -151,9 +151,10 @@ void ExceptionHandler(ExceptionType which)
             filename = User2System(virtAddr, MaxFileLength + 1);
             if (filename == NULL)
             {
-                printf("\nNot enough memory in system");
+                printf("Not enough memory in system\n");
                 DEBUG('a', "\nNot enough memory in system");
                 machine->WriteRegister(2, -1);
+                IncreasePC();
                 delete[] filename;
                 return;
             }
@@ -161,8 +162,9 @@ void ExceptionHandler(ExceptionType which)
 
             if (!fileSystem->Create(filename, 0))
             {
-                printf("\nError create file '%s'", filename);
+                printf("Error create file '%s'\n", filename);
                 machine->WriteRegister(2, -1);
+                IncreasePC();
                 delete[] filename;
                 return;
             }
@@ -176,11 +178,12 @@ void ExceptionHandler(ExceptionType which)
         {
             int virtAddr = machine->ReadRegister(4);
             int type = machine->ReadRegister(5);
-            char *filename;
+            char *filename = NULL;
 
             if (fileSystem->size >= 10)
             {
                 machine->WriteRegister(2, -1);
+                IncreasePC();
                 delete[] filename;
                 return;
             }
@@ -190,6 +193,7 @@ void ExceptionHandler(ExceptionType which)
             {
                 printf("Stdin mode\n");
                 machine->WriteRegister(2, 0);
+                IncreasePC();
                 delete[] filename;
                 return;
             }
@@ -198,26 +202,32 @@ void ExceptionHandler(ExceptionType which)
             {
                 printf("Stdout mode\n");
                 machine->WriteRegister(2, 1);
+                IncreasePC();
                 delete[] filename;
                 return;
             }
 
             int nextSlot = fileSystem->size;
-            fileSystem->openFiles[nextSlot] = fileSystem->Open(filename);
+            fileSystem->openFiles[nextSlot] = fileSystem->Open(filename, type);
             if (fileSystem->openFiles[nextSlot] != NULL)
             {
-                printf("\nOpen file '%s' successfully", filename);
+                printf("Open file '%s' successfully\n", filename);
                 fileSystem->size++;
                 machine->WriteRegister(2, nextSlot);
             }
             else
             {
-                printf("\nCan not open file '%s'", filename);
+                printf("Can not open file '%s'\n", filename);
                 machine->WriteRegister(2, -1);
             }
 
             delete[] filename;
             IncreasePC();
+            break;
+        }
+
+        case SC_Read:
+        {
             break;
         }
 
@@ -228,6 +238,20 @@ void ExceptionHandler(ExceptionType which)
 
         case SC_Close:
         {
+            int id = machine->ReadRegister(4);
+            int size = fileSystem->size;
+            if (id >= size || id < 0)
+            {
+                printf("Close file failed\n");
+                machine->WriteRegister(2, -1);
+                IncreasePC();
+                return;
+            }
+            delete fileSystem->openFiles[id];
+            fileSystem->openFiles[id] == NULL;
+            machine->WriteRegister(2, 0);
+            IncreasePC();
+            printf("Close file successfully\n");
             break;
         }
 
@@ -244,7 +268,7 @@ void ExceptionHandler(ExceptionType which)
         case SC_Print:
         {
             int virtAddr;
-            char *string;
+            char *string = NULL;
             virtAddr = machine->ReadRegister(4);
             string = User2System(virtAddr, MaxFileLength + 1);
 
