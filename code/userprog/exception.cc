@@ -228,6 +228,51 @@ void ExceptionHandler(ExceptionType which)
 
         case SC_Read:
         {
+            int virtAddr = machine->ReadRegister(4);
+            int charCount = machine->ReadRegister(5);
+            int openId = machine->ReadRegister(6);
+            int size = fileSystem->size;
+
+            // out of range
+            if (openId >= size || openId < 0)
+            {
+                printf("Out of range\n");
+                machine->WriteRegister(2, -1);
+                return;
+            }
+
+            // open stdout
+            if (openId == 1)
+            {
+                printf("Open stdout\n");
+                machine->WriteRegister(2, -1);
+                return;
+            }
+
+            char *buffer = User2System(virtAddr, charCount);
+            if (openId == 0)
+            {
+                int sz = gSynchConsole->Read(buffer, charCount);
+                System2User(virtAddr, sz, buffer);
+                machine->WriteRegister(2, sz);
+
+                delete[] buffer;
+                break;
+            }
+
+            int before = fileSystem->openFiles[openId]->GetCurrentPos();
+            if ((fileSystem->openFiles[openId]->Read(buffer, charCount)) > 0)
+            {
+                int after = fileSystem->openFiles[openId]->GetCurrentPos();
+                System2User(virtAddr, charCount, buffer);
+                machine->WriteRegister(2, after - before + 1);
+            }
+            else
+            {
+                machine->WriteRegister(2, -1);
+            }
+            delete[] buffer;
+
             break;
         }
 
@@ -249,6 +294,7 @@ void ExceptionHandler(ExceptionType which)
             }
             delete fileSystem->openFiles[id];
             fileSystem->openFiles[id] == NULL;
+            fileSystem->size--;
             machine->WriteRegister(2, 0);
             IncreasePC();
             printf("Close file successfully\n");
