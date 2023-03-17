@@ -388,6 +388,16 @@ void ExceptionHandler(ExceptionType which)
             break;
         }
 
+        case SC_Seek:
+        {
+            break;
+        }
+
+        case SC_Delete:
+        {
+            break;
+        }
+
         case SC_Print:
         {
             int virtAddr;
