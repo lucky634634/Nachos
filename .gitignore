@@ -2,3 +2,4 @@
 nachos
 /[Gg]nu-decstation-ultrix/
 *.coff
+/.vscode/
