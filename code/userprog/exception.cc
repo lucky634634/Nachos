@@ -270,6 +270,14 @@ void ExceptionHandler(ExceptionType which)
             }
 
             int before = fileSystem->openFiles[openId]->GetCurrentPos();
+            // if current position is end of file
+            if (before == fileSystem->openFiles[openId]->Length() - 1)
+            {
+                machine->WriteRegister(2, -2);
+                IncreasePC();
+                delete[] buffer;
+                return;
+            }
             if ((fileSystem->openFiles[openId]->Read(buffer, charCount)) > 0)
             {
                 int after = fileSystem->openFiles[openId]->GetCurrentPos();
@@ -346,6 +354,14 @@ void ExceptionHandler(ExceptionType which)
             }
 
             int before = fileSystem->openFiles[openId]->GetCurrentPos();
+            // if current position is end of file
+            if (before == fileSystem->openFiles[openId]->Length() - 1)
+            {
+                machine->WriteRegister(2, -2);
+                IncreasePC();
+                delete[] buffer;
+                return;
+            }
             if ((fileSystem->openFiles[openId]->Write(buffer, charCount)) != 0)
             {
                 int after = fileSystem->openFiles[openId]->GetCurrentPos();
