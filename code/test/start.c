@@ -77,7 +77,7 @@ Join:
 	.globl CreateFile
 	.ent	CreateFile
 CreateFile:
-	addiu $2,$0,SC_CreateFile
+	addiu $2,$0,SC_Create
 	syscall
 	j	$31
 	.end CreateFile

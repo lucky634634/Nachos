@@ -22,7 +22,7 @@
 #define SC_Exit 1
 #define SC_Exec 2
 #define SC_Join 3
-#define SC_CreateFile 4
+#define SC_Create 4
 #define SC_Open 5
 #define SC_Read 6
 #define SC_Write 7
@@ -31,6 +31,7 @@
 #define SC_Yield 10
 #define SC_Seek 11
 #define SC_Delete 12
+#define SC_Scan 13
 #define SC_Print 20
 
 #ifndef IN_ASM
@@ -95,7 +96,7 @@ int CreateFile(char *name);
 OpenFileId Open(char *name, int type);
 
 /* Write "size" bytes from "buffer" to the open file. */
-void Write(char *buffer, int size, OpenFileId id);
+int Write(char *buffer, int size, OpenFileId id);
 
 /* Read "size" bytes from the open file into "buffer".
  * Return the number of bytes actually read -- if the open file isn't
@@ -124,10 +125,9 @@ void Yield();
 
 void print(char *string);
 
-// return -2 if file is empty
-int Seek(int pos, OpenFileId);
+int Seek(int pos, OpenFileId id);
 
-int Delete(char *filename);
+int Delete(char* filename);
 
 #endif /* IN_ASM */
 
