@@ -22,7 +22,7 @@
 #define SC_Exit 1
 #define SC_Exec 2
 #define SC_Join 3
-#define SC_Create 4
+#define SC_CreateFile 4
 #define SC_Open 5
 #define SC_Read 6
 #define SC_Write 7
@@ -123,6 +123,8 @@ void Fork(void (*func)());
 void Yield();
 
 void print(char *string);
+
+int Seek(int pos, OpenFileId);
 
 #endif /* IN_ASM */
 

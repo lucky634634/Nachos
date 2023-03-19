@@ -138,7 +138,7 @@ void ExceptionHandler(ExceptionType which)
             break;
         }
 
-        case SC_Create:
+        case SC_CreateFile:
         {
             int virtAddr;
             char *filename = NULL;
@@ -406,6 +406,42 @@ void ExceptionHandler(ExceptionType which)
 
         case SC_Seek:
         {
+            int pos = machine->ReadRegister(4);
+            int fileID = machine->ReadRegister(5);
+            // check whether fileID is valid
+            // <= 1: stdout, stdin
+            if (fileID <= 1 || fileID >= fileSystem->size || fileSystem->openFiles[fileID] == NULL)
+            {
+                printf("fileId is invalid\n");
+                machine->WriteRegister(2, -1);
+                IncreasePC();
+                break;
+            }
+            int len = fileSystem->openFiles[fileID]->Length();
+
+            if (pos >= len)
+            {
+                printf("position is ivalid\n");
+                machine->WriteRegister(2, -1);
+                IncreasePC();
+                break;
+            }
+            if (pos == -1)
+            {
+                pos = len - 1;
+                if (pos == -1)
+                {
+                    printf("File is empty\n");
+                    machine->WriteRegister(2, -2);
+                    IncreasePC();
+                    break;
+                }
+            }
+
+            fileSystem->openFiles[fileID]->Seek(pos);
+            machine->WriteRegister(2, pos);
+            printf("Seek successfully\n");
+            IncreasePC();
             break;
         }
 

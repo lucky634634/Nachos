@@ -77,7 +77,7 @@ Join:
 	.globl CreateFile
 	.ent	CreateFile
 CreateFile:
-	addiu $2,$0,SC_Create
+	addiu $2,$0,SC_CreateFile
 	syscall
 	j	$31
 	.end CreateFile
@@ -129,6 +129,14 @@ Yield:
 	syscall
 	j	$31
 	.end Yield
+
+	.globl Seek
+	.ent	Seek
+Seek :
+	addiu $2, $0, SC_Seek
+	syscall
+	j	$31
+	.end Seek
 
 	.globl print
 	.ent	print

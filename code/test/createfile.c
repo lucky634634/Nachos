@@ -20,8 +20,5 @@ int main()
         print(filename);
         print(" successfully\n");
     }
-    Open("text1.txt", 1);
-    Close(2);
-    // Exit(2);
     Halt();
 }
