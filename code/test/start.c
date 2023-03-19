@@ -138,6 +138,14 @@ Seek :
 	j	$31
 	.end Seek
 
+	.globl Delete
+	.ent	Delete
+Delete :
+	addiu $2, $0, SC_Delete
+	syscall
+	j	$31
+	.end Delete
+
 	.globl print
 	.ent	print
 print:

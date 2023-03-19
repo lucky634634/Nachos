@@ -124,7 +124,10 @@ void Yield();
 
 void print(char *string);
 
+// return -2 if file is empty
 int Seek(int pos, OpenFileId);
+
+int Delete(char *filename);
 
 #endif /* IN_ASM */
 

@@ -419,7 +419,7 @@ void ExceptionHandler(ExceptionType which)
             }
             int len = fileSystem->openFiles[fileID]->Length();
 
-            if (pos >= len)
+            if (pos >= len && len > 0)
             {
                 printf("position is ivalid\n");
                 machine->WriteRegister(2, -1);
@@ -447,6 +447,33 @@ void ExceptionHandler(ExceptionType which)
 
         case SC_Delete:
         {
+            int virtAddr = machine->ReadRegister(4);
+            char *filename = NULL;
+            filename = User2System(virtAddr, MaxFileLength + 1);
+            if (filename == NULL)
+            {
+                printf("Not enough memory in system\n");
+                DEBUG('a', "\nNot enough memory in system");
+                machine->WriteRegister(2, -1);
+                IncreasePC();
+                delete[] filename;
+                return;
+            }
+
+            if (!fileSystem->Remove(filename))
+            {
+                printf("Cannot delete file\n");
+                machine->WriteRegister(2, -1);
+                IncreasePC();
+                break;
+            }
+            else
+            {
+                printf("Delete file successfully\n");
+                machine->WriteRegister(2, 0);
+                IncreasePC();
+                break;
+            }
             break;
         }
 
