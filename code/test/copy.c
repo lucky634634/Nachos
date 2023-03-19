@@ -6,68 +6,73 @@
 
 int main()
 {
-    int stdin, stdout, len;
+    int len;
     char fileName[MaxLength];
-    char content[MaxLength];
+    char *content;
     int fileID;
     int fileSize;
 
-    stdin = Open("stdin", 0);
-    stdout = Open("stdout", 1);
-    if (stdin != -1 && stdout != -1)
+    Write("Please input filename 1: ", MaxLength, ConsoleOutput);
+    len = Read(fileName, MaxLength, ConsoleInput);
+    if (len == -1)
     {
-        Write("Please input filename 1: ", MaxLength, stdout);
-        len = Read(fileName, MaxLength, stdin);
-        if (len == -1)
+        print("Error reading file name 1\n");
+    }
+    else
+    {
+        fileID = Open(fileName, READ_ONLY);
+        if (fileID == -1)
         {
-            print("Error reading file name 1\n");
+            print("Error opening file\n");
         }
         else
         {
-            fileID = Open(fileName, READ_ONLY);
-            if (fileID == -1)
+            fileSize = Seek(-1, fileID);
+            if (fileSize == -1)
             {
-                print("Error opening file\n");
+                print("Cannot read file\n");
             }
             else
             {
-                fileSize = Seek(-1, fileID);
-                if (fileSize == -1)
+                // file is empty
+                if (fileSize == -2)
                 {
-                    print("Cannot read file\n");
+                    fileSize = 0;
                 }
                 else
                 {
-                    // Read content of file 1
-                    Seek(0, fileID);
-                    Read(content, fileSize, fileID);
-                    Close(fileID);
-                    Write("Please input filename 2: ", MaxLength, stdout);
-                    len = Read(fileName, MaxLength, stdin);
-                    if (len == -1)
+                    fileSize++;
+                }
+                // Read content of file 1
+                Seek(0, fileID);
+                Read(content, fileSize, fileID);
+                Close(fileID);
+                print(content);
+                Write("Please input filename 2: ", MaxLength, ConsoleOutput);
+                len = Read(fileName, MaxLength, ConsoleInput);
+                if (len == -1)
+                {
+                    print("Error reading file name 2\n");
+                }
+                else
+                {
+                    fileID = Open(fileName, READ_WRITE);
+                    if (fileID == -1)
                     {
-                        print("Error reading file name 2\n");
+                        print("Error opening file\n");
                     }
                     else
                     {
-                        fileID = Open(fileName, READ_WRITE);
-                        if (fileID == -1)
-                        {
-                            print("Error opening file\n");
-                        }
-                        else
-                        {
-                            // Write content to file 2
-                            Seek(0, fileID);
-                            Write("", MaxLength, fileID);
-                            Write(content, fileSize, fileID);
-                            Write("Copy successfully", MaxLength, stdout);
-                            Close(fileID);
-                        }
+                        // Write content to file 2
+                        Seek(0, fileID);
+                        Write(content, fileSize, fileID);
+                        Write("Copy successfully", MaxLength, ConsoleOutput);
+                        Close(fileID);
                     }
                 }
             }
         }
     }
+
     Halt();
 }

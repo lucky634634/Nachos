@@ -26,8 +26,6 @@
 #include "syscall.h"
 #include "filesys.h"
 #define MaxFileLength 255
-#define READ_ONLY 1
-#define READ_WRITE 0
 
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -140,7 +138,7 @@ void ExceptionHandler(ExceptionType which)
             break;
         }
 
-        case SC_Create:
+        case SC_CreateFile:
         {
             int virtAddr;
             char *filename = NULL;
@@ -219,7 +217,7 @@ void ExceptionHandler(ExceptionType which)
             }
             else
             {
-                printf("Cannot open file '%s'\n", filename);
+                printf("Can not open file '%s'\n", filename);
                 machine->WriteRegister(2, -1);
             }
 
@@ -411,18 +409,33 @@ void ExceptionHandler(ExceptionType which)
             int pos = machine->ReadRegister(4);
             int fileID = machine->ReadRegister(5);
             // check whether fileID is valid
-            if (fileID < 1 || fileID > fileSystem->size || fileSystem->openFiles[fileID] == NULL)
+            // <= 1: stdout, stdin
+            if (fileID <= 1 || fileID >= fileSystem->size || fileSystem->openFiles[fileID] == NULL)
             {
-                printf("Position is invalid\n");
+                printf("fileId is invalid\n");
                 machine->WriteRegister(2, -1);
                 IncreasePC();
                 break;
             }
             int len = fileSystem->openFiles[fileID]->Length();
 
+            if (pos >= len && len > 0)
+            {
+                printf("position is ivalid\n");
+                machine->WriteRegister(2, -1);
+                IncreasePC();
+                break;
+            }
             if (pos == -1)
             {
-                pos = len;
+                pos = len - 1;
+                if (pos == -1)
+                {
+                    printf("File is empty\n");
+                    machine->WriteRegister(2, -2);
+                    IncreasePC();
+                    break;
+                }
             }
 
             fileSystem->openFiles[fileID]->Seek(pos);
@@ -435,7 +448,7 @@ void ExceptionHandler(ExceptionType which)
         case SC_Delete:
         {
             int virtAddr = machine->ReadRegister(4);
-            char* filename = NULL;
+            char *filename = NULL;
             filename = User2System(virtAddr, MaxFileLength + 1);
             if (filename == NULL)
             {
@@ -446,6 +459,7 @@ void ExceptionHandler(ExceptionType which)
                 delete[] filename;
                 return;
             }
+
             if (!fileSystem->Remove(filename))
             {
                 printf("Cannot delete file\n");
@@ -460,7 +474,6 @@ void ExceptionHandler(ExceptionType which)
                 IncreasePC();
                 break;
             }
-            
             break;
         }
 
