@@ -23,30 +23,39 @@
 #include "copyright.h"
 #include "utility.h"
 
-#ifdef FILESYS_STUB // Temporarily implement calls to
-					// Nachos file system as calls to UNIX!
+#ifdef FILESYS_STUB // Temporarily implement calls to       \
+					// Nachos file system as calls to UNIX! \
 					// See definitions listed under #else
 class OpenFile
 {
 public:
 	int type; // 0: read and write
 			  // 1: read-only
+	char *name;
 	OpenFile(int f)
 	{
 		file = f;
 		currentOffset = 0;
 		type = 0;
+		name = new char[256];
 	} // open the file
 
-	OpenFile(int f, int type)
+	OpenFile(int f, char *name, int type)
 	{
 		file = f;
 		currentOffset = 0;
+		this->name = new char[256];
+		for (int i = 0; name[i] != '\0'; i++)
+		{
+			this->name[i] = name[i];
+		}
+
 		this->type = type;
 	} // open the file
 	~OpenFile()
 	{
 		Close(file);
+		delete[] name;
 	} // close the file
 
 	int ReadAt(char *into, int numBytes, int position)
@@ -105,9 +114,10 @@ class OpenFile
 public:
 	int type; // 0: read and write
 			  // 1: read-only
+	char *name;
 	OpenFile(int sector); // Open a file whose header is located
 						  // at "sector" on the disk
-	OpenFile(int sector, int type);
+	OpenFile(int sector, char *name, int type);
 	~OpenFile(); // Close the file
 
 	void Seek(int position); // Set the position from which to

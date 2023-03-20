@@ -1,8 +1,6 @@
 #include "syscall.h"
 #include "copyright.h"
 #define MaxLength 255
-#define READ_ONLY 1
-#define READ_WRITE 0
 
 int main()
 {
@@ -35,7 +33,7 @@ int main()
             }
             else if (eof == -2)
             {
-                Close(fileID);
+                CloseFile(fileID);
             }
             else
             {
@@ -45,7 +43,7 @@ int main()
                 print("The content of the file is:\n");
                 print(content);
                 print("\n");
-                Close(fileID);
+                CloseFile(fileID);
             }
         }
     }

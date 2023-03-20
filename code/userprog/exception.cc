@@ -189,6 +189,15 @@ void ExceptionHandler(ExceptionType which)
             }
             filename = User2System(virtAddr, MaxFileLength + 1);
 
+            if (strlen(filename) <= 0 || strcmp(filename, "") == 0)
+            {
+                printf("File name is empty\n");
+                machine->WriteRegister(2, 0);
+                IncreasePC();
+                delete[] filename;
+                break;
+            }
+
             if (strcmp(filename, "stdin") == 0)
             {
                 printf("Stdin mode\n");
@@ -207,7 +216,15 @@ void ExceptionHandler(ExceptionType which)
                 return;
             }
 
-            int nextSlot = fileSystem->size;
+            int nextSlot = 2;
+            for (int i = 0; i < 10; i++)
+            {
+                if (fileSystem->openFiles[i] == NULL)
+                {
+                    nextSlot = i;
+                    break;
+                }
+            }
             fileSystem->openFiles[nextSlot] = fileSystem->Open(filename, type);
             if (fileSystem->openFiles[nextSlot] != NULL)
             {
@@ -377,8 +394,8 @@ void ExceptionHandler(ExceptionType which)
         case SC_Close:
         {
             int id = machine->ReadRegister(4);
-            int size = fileSystem->size;
-            if (id >= size || id < 0)
+
+            if (id >= 10 || id < 0 || fileSystem->openFiles[id] == NULL)
             {
                 printf("Close file failed\n");
                 machine->WriteRegister(2, -1);
@@ -410,7 +427,7 @@ void ExceptionHandler(ExceptionType which)
             int fileID = machine->ReadRegister(5);
             // check whether fileID is valid
             // <= 1: stdout, stdin
-            if (fileID <= 1 || fileID >= fileSystem->size || fileSystem->openFiles[fileID] == NULL)
+            if (fileID <= 1 || fileID >= 10 || fileSystem->openFiles[fileID] == NULL)
             {
                 printf("fileId is invalid\n");
                 machine->WriteRegister(2, -1);
@@ -459,12 +476,39 @@ void ExceptionHandler(ExceptionType which)
                 delete[] filename;
                 return;
             }
-
+            if (strcmp(filename, "stdin") == 0)
+            {
+                printf("Cannot delete stdin");
+                machine->WriteRegister(2, -1);
+                IncreasePC();
+                delete[] filename;
+                break;
+            }
+            if (strcmp(filename, "stdout") == 0)
+            {
+                printf("Cannot delete stdout");
+                machine->WriteRegister(2, -1);
+                IncreasePC();
+                delete[] filename;
+                break;
+            }
+            for (int i = 2; i < 10; i++)
+            {
+                if (strcmp(fileSystem->openFiles[i]->name, filename) == 0)
+                {
+                    printf("File '%s' is opening\n", filename);
+                    machine->WriteRegister(2, -1);
+                    IncreasePC();
+                    delete[] filename;
+                    return;
+                }
+            }
             if (!fileSystem->Remove(filename))
             {
                 printf("Cannot delete file\n");
                 machine->WriteRegister(2, -1);
                 IncreasePC();
+                delete[] filename;
                 break;
             }
             else
@@ -472,6 +516,7 @@ void ExceptionHandler(ExceptionType which)
                 printf("Delete file successfully\n");
                 machine->WriteRegister(2, 0);
                 IncreasePC();
+                delete[] filename;
                 break;
             }
             break;

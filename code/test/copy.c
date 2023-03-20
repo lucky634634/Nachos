@@ -1,8 +1,6 @@
 #include "syscall.h"
 #include "copyright.h"
 #define MaxLength 255
-#define READ_ONLY 1
-#define READ_WRITE 0
 
 int main()
 {
@@ -46,7 +44,7 @@ int main()
                 // Read content of file 1
                 Seek(0, fileID);
                 Read(content, fileSize, fileID);
-                Close(fileID);
+                CloseFile(fileID);
                 print(content);
                 Write("Please input filename 2: ", MaxLength, ConsoleOutput);
                 len = Read(fileName, MaxLength, ConsoleInput);
@@ -65,9 +63,10 @@ int main()
                     {
                         // Write content to file 2
                         Seek(0, fileID);
+                        Write("", 0, fileID);
                         Write(content, fileSize, fileID);
                         Write("Copy successfully", MaxLength, ConsoleOutput);
-                        Close(fileID);
+                        CloseFile(fileID);
                     }
                 }
             }

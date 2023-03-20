@@ -252,7 +252,7 @@ FileSystem::Open(char *name, int type)
     directory->FetchFrom(directoryFile);
     sector = directory->Find(name);
     if (sector >= 0)
-        openFile = new OpenFile(sector, type); // name was found in directory
+        openFile = new OpenFile(sector, name, type); // name was found in directory
     delete directory;
     return openFile; // return NULL if not found
 }

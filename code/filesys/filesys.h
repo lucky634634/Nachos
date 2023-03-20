@@ -79,7 +79,7 @@ public:
 		if (fileDescriptor == -1)
 			return NULL;
 
-		return new OpenFile(fileDescriptor, type);
+		return new OpenFile(fileDescriptor, name,type);
 	}
 
 	bool Remove(char *name) { return Unlink(name) == 0; }

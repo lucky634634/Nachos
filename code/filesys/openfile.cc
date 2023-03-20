@@ -35,11 +35,18 @@ OpenFile::OpenFile(int sector)
     type = 0;
 }
 
-OpenFile::OpenFile(int sector, int type)
+OpenFile::OpenFile(int sector, char *name, int type)
 {
+    int i;
     hdr = new FileHeader;
     hdr->FetchFrom(sector);
     seekPosition = 0;
+    this->name = new char[256];
+    for (i = 0; name[i] != '\0'; i++)
+    {
+        this->name[i] = name[i];
+    }
+    this->name[i] = '\0';
     this->type = type;
 }
 
@@ -51,6 +58,7 @@ OpenFile::OpenFile(int sector, int type)
 OpenFile::~OpenFile()
 {
     delete hdr;
+    delete[] name;
 }
 
 //----------------------------------------------------------------------
