@@ -251,7 +251,7 @@ void ExceptionHandler(ExceptionType which)
             int size = fileSystem->size;
 
             // out of range
-            if (openId >= size || openId < 0)
+            if (openId >= 10 || openId < 0)
             {
                 printf("Out of range\n");
                 machine->WriteRegister(2, -1);
@@ -319,7 +319,7 @@ void ExceptionHandler(ExceptionType which)
             int size = fileSystem->size;
 
             // out of range
-            if (openId >= size || openId < 0)
+            if (openId >= 10 || openId < 0)
             {
                 printf("Out of range\n");
                 machine->WriteRegister(2, -1);
@@ -395,7 +395,7 @@ void ExceptionHandler(ExceptionType which)
         {
             int id = machine->ReadRegister(4);
 
-            if (id >= 10 || id < 0 || fileSystem->openFiles[id] == NULL)
+            if (id >= 10 || id < 2|| fileSystem->openFiles[id] == NULL)
             {
                 printf("Close file failed\n");
                 machine->WriteRegister(2, -1);
