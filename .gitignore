@@ -3,3 +3,7 @@ nachos
 /[Gg]nu-decstation-ultrix/
 *.coff
 .vscode/
+halt
+matmult
+shell
+sort
