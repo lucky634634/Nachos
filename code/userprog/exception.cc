@@ -130,6 +130,32 @@ void ExceptionHandler(ExceptionType which)
 
         case SC_Exec:
         {
+            int virtAddr;
+            char *filename = NULL;
+            virtAddr = machine->ReadRegister(4);
+
+            filename = User2System(virtAddr, MaxFileLength + 1);
+            if (filename == NULL)
+            {
+                printf("Not enough memory in system\n");
+                machine->WriteRegister(2, -1);
+                IncreasePC();
+                delete[] filename;
+                break;
+            }
+
+            OpenFile *openFile = fileSystem->Open(filename);
+            if (openFile == NULL)
+            {
+                printf("Cannot open file '%s'", filename);
+                machine->WriteRegister(2, -1);
+                IncreasePC();
+                delete[] filename;
+                break;
+            }
+
+            delete openFile;
+
             break;
         }
 
@@ -248,7 +274,6 @@ void ExceptionHandler(ExceptionType which)
             int virtAddr = machine->ReadRegister(4);
             int charCount = machine->ReadRegister(5);
             int openId = machine->ReadRegister(6);
-            int size = fileSystem->size;
 
             // out of range
             if (openId >= 10 || openId < 0)
@@ -316,7 +341,6 @@ void ExceptionHandler(ExceptionType which)
             int virtAddr = machine->ReadRegister(4);
             int charCount = machine->ReadRegister(5);
             int openId = machine->ReadRegister(6);
-            int size = fileSystem->size;
 
             // out of range
             if (openId >= 10 || openId < 0)
@@ -403,7 +427,7 @@ void ExceptionHandler(ExceptionType which)
                 return;
             }
             delete fileSystem->openFiles[id];
-            fileSystem->openFiles[id] == NULL;
+            fileSystem->openFiles[id] = NULL;
             fileSystem->size--;
             machine->WriteRegister(2, 0);
             IncreasePC();

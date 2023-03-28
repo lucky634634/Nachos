@@ -30,6 +30,7 @@ SynchDisk *synchDisk;
 #ifdef USER_PROGRAM // requires either FILESYS or FILESYS_STUB
 Machine *machine;   // user program memory and registers
 SynchConsole *gSynchConsole;
+BitMap *gBitMapPhysPage;
 #endif
 
 #ifdef NETWORK
@@ -56,8 +57,7 @@ extern void Cleanup();
 //	"dummy" is because every interrupt handler takes one argument,
 //		whether it needs it or not.
 //----------------------------------------------------------------------
-static void
-TimerInterruptHandler(int dummy)
+static void TimerInterruptHandler(int dummy)
 {
     if (interrupt->getStatus() != IdleMode)
         interrupt->YieldOnReturn();
