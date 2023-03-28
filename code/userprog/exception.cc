@@ -156,7 +156,7 @@ void ExceptionHandler(ExceptionType which)
                 machine->WriteRegister(2, -1);
                 IncreasePC();
                 delete[] filename;
-                return;
+                break;
             }
             DEBUG('a', "\nFinish reading filename.");
 
@@ -166,7 +166,7 @@ void ExceptionHandler(ExceptionType which)
                 machine->WriteRegister(2, -1);
                 IncreasePC();
                 delete[] filename;
-                return;
+                break;
             }
             machine->WriteRegister(2, 0);
             IncreasePC();
@@ -185,7 +185,7 @@ void ExceptionHandler(ExceptionType which)
                 machine->WriteRegister(2, -1);
                 IncreasePC();
                 delete[] filename;
-                return;
+                break;
             }
             filename = User2System(virtAddr, MaxFileLength + 1);
 
@@ -204,7 +204,7 @@ void ExceptionHandler(ExceptionType which)
                 machine->WriteRegister(2, 0);
                 IncreasePC();
                 delete[] filename;
-                return;
+                break;
             }
 
             if (strcmp(filename, "stdout") == 0)
@@ -213,7 +213,7 @@ void ExceptionHandler(ExceptionType which)
                 machine->WriteRegister(2, 1);
                 IncreasePC();
                 delete[] filename;
-                return;
+                break;
             }
 
             int nextSlot = 2;
@@ -293,7 +293,7 @@ void ExceptionHandler(ExceptionType which)
                 machine->WriteRegister(2, -2);
                 IncreasePC();
                 delete[] buffer;
-                return;
+                break;
             }
             if ((fileSystem->openFiles[openId]->Read(buffer, charCount)) > 0)
             {
@@ -324,7 +324,7 @@ void ExceptionHandler(ExceptionType which)
                 printf("Out of range\n");
                 machine->WriteRegister(2, -1);
                 IncreasePC();
-                return;
+                break;
             }
 
             // write stdin
@@ -333,7 +333,7 @@ void ExceptionHandler(ExceptionType which)
                 printf("Write stdin\n");
                 machine->WriteRegister(2, -1);
                 IncreasePC();
-                return;
+                break;
             }
 
             // file don't exist
@@ -342,7 +342,7 @@ void ExceptionHandler(ExceptionType which)
                 printf("File don't exist\n");
                 machine->WriteRegister(2, -1);
                 IncreasePC();
-                return;
+                break;
             }
 
             if (fileSystem->openFiles[openId]->type == 1)
@@ -350,7 +350,7 @@ void ExceptionHandler(ExceptionType which)
                 printf("File is read-only\n");
                 machine->WriteRegister(2, -1);
                 IncreasePC();
-                return;
+                break;
             }
 
             char *buffer = User2System(virtAddr, charCount);
@@ -367,7 +367,7 @@ void ExceptionHandler(ExceptionType which)
                 machine->WriteRegister(2, i - 1);
                 IncreasePC();
                 delete[] buffer;
-                return;
+                break;
             }
 
             int before = fileSystem->openFiles[openId]->GetCurrentPos();
@@ -395,7 +395,7 @@ void ExceptionHandler(ExceptionType which)
         {
             int id = machine->ReadRegister(4);
 
-            if (id >= 10 || id < 2|| fileSystem->openFiles[id] == NULL)
+            if (id >= 10 || id < 2 || fileSystem->openFiles[id] == NULL)
             {
                 printf("Close file failed\n");
                 machine->WriteRegister(2, -1);
