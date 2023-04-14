@@ -32,6 +32,7 @@
 #define SC_Seek 11
 #define SC_Delete 12
 #define SC_Print 20
+#define SC_CreateSemaphore 21
 
 #ifndef IN_ASM
 /* The system call interface.  These are the operations the Nachos
@@ -128,6 +129,7 @@ void print(char *string);
 int Seek(int pos, OpenFileId);
 
 int Delete(char *filename);
+int CreateSemaphore(char *name, int semVal);
 
 #define READ_WRITE 0
 #define READ_ONLY 1

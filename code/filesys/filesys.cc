@@ -354,3 +354,15 @@ void FileSystem::Print()
     delete freeMap;
     delete directory;
 }
+
+int FileSystem::FindFreeSlot()
+{
+    for (int i = 2; i < 10; i++)
+    {
+        if (openFiles[i] == NULL)
+        {
+            return i;
+        }
+    }
+    return -1;
+}

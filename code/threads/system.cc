@@ -31,6 +31,9 @@ SynchDisk *synchDisk;
 Machine *machine;   // user program memory and registers
 SynchConsole *gSynchConsole;
 BitMap *gBitMapPhysPage;
+Semaphore *addrLock;
+STable *semTable;
+PTable *pTable;
 #endif
 
 #ifdef NETWORK
@@ -156,6 +159,10 @@ void Initialize(int argc, char **argv)
 #ifdef USER_PROGRAM
     machine = new Machine(debugUserProg); // this must come first
     gSynchConsole = new SynchConsole();
+    gBitMapPhysPage = new BitMap(NumPhysPages);
+    pTable = new PTable(10);
+    semTable = new STable();
+    addrLock = new Semaphore("addrLock", 1);
 #endif
 
 #ifdef FILESYS

@@ -1,5 +1,6 @@
 #ifndef PCB_H
 #define PCB_H
+
 #include "thread.h"
 #include "synch.h"
 
@@ -8,9 +9,12 @@ class PCB
 private:
     Semaphore *joinSem; // semaphore cho qua trinh join
     Semaphore *exitSem; // semaphore cho qua trinh exit
-    Semaphore *multex;  // semapore cho qua trinh truy xuat doc quyen
+    Semaphore *mutex;   // semapore cho qua trinh truy xuat doc quyen
     int exitCode;
     int numWait; // so tien trinh da join
+    Thread *thread;
+
+    char fileName[256];
 
 public:
     int parentID; // ID cua tien trinh cha
@@ -36,5 +40,5 @@ public:
     void SetFileName(char *fn); // Dat ten cua tien trinh
     char *GetFileName();        // Tra ve ten cua tien trinh
 };
-
+void StartProcess(int id);
 #endif

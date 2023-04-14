@@ -79,10 +79,22 @@ public:
 		if (fileDescriptor == -1)
 			return NULL;
 
-		return new OpenFile(fileDescriptor, name,type);
+		return new OpenFile(fileDescriptor, name, type);
 	}
 
 	bool Remove(char *name) { return Unlink(name) == 0; }
+
+	int FindFreeSlot()
+	{
+		for (int i = 2; i < 10; i++)
+		{
+			if (openFiles[i] == NULL)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
 };
 
 #else // FILESYS
@@ -108,6 +120,7 @@ public:
 	void List(); // List all the files in the file system
 
 	void Print(); // List all the files and their contents
+	int FindFreeSlot();
 
 private:
 	OpenFile *freeMapFile;	 // Bit map of free disk blocks,

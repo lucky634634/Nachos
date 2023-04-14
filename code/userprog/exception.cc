@@ -121,8 +121,13 @@ void ExceptionHandler(ExceptionType which)
         case SC_Exit:
         {
             int code = machine->ReadRegister(4);
-            DEBUG('a', "Exit with code %d\n", code);
-            printf("Exit with code %d\n", code);
+            if(code != 0)
+            {
+                IncreasePC();
+                break;
+            }
+            int res = pTable->ExitUpdate(code);
+            currentThread->FreeSpace();
             currentThread->Finish();
             IncreasePC();
             break;
@@ -144,6 +149,7 @@ void ExceptionHandler(ExceptionType which)
                 break;
             }
 
+            // Check file exists
             OpenFile *openFile = fileSystem->Open(filename);
             if (openFile == NULL)
             {
@@ -153,14 +159,23 @@ void ExceptionHandler(ExceptionType which)
                 delete[] filename;
                 break;
             }
-
             delete openFile;
+
+            int id = pTable->ExecUpdate(filename);
+            machine->WriteRegister(2, id);
+
+            IncreasePC();
+            delete[] filename;
 
             break;
         }
 
         case SC_Join:
         {
+            int id = machine->ReadRegister(4);
+            int res = pTable->JoinUpdate(id);
+            machine->WriteRegister(2, res);
+            IncreasePC();
             break;
         }
 
@@ -242,14 +257,11 @@ void ExceptionHandler(ExceptionType which)
                 break;
             }
 
-            int nextSlot = 2;
-            for (int i = 0; i < 10; i++)
+            int nextSlot = fileSystem->FindFreeSlot();
+            if (nextSlot == -1)
             {
-                if (fileSystem->openFiles[i] == NULL)
-                {
-                    nextSlot = i;
-                    break;
-                }
+                printf("No free slot\n");
+                machine->WriteRegister(2, -1);
             }
             fileSystem->openFiles[nextSlot] = fileSystem->Open(filename, type);
             if (fileSystem->openFiles[nextSlot] != NULL)
@@ -462,7 +474,7 @@ void ExceptionHandler(ExceptionType which)
 
             if (pos >= len && len > 0)
             {
-                printf("position is ivalid\n");
+                printf("position is invalid\n");
                 machine->WriteRegister(2, -1);
                 IncreasePC();
                 break;
@@ -543,6 +555,37 @@ void ExceptionHandler(ExceptionType which)
                 delete[] filename;
                 break;
             }
+            break;
+        }
+
+        case SC_CreateSemaphore:
+        {
+            int virtAddr = machine->ReadRegister(4);
+            int semVal = machine->ReadRegister(5);
+
+            char *name = User2System(virtAddr, MaxFileLength + 1);
+            if(name == NULL)
+            {
+                printf("Not enough memory in system\n");
+                machine->WriteRegister(2, -1);
+                delete[] name;
+                IncreasePC();
+                break;
+            }
+
+            int res = semTable->Create(name, semVal);
+            if (res == -1)
+            {
+                printf("Cannot create semaphore\n");
+                machine->WriteRegister(2, -1);
+                delete[] name;
+                IncreasePC();
+                break;  
+            }
+
+            machine->WriteRegister(2, res);
+            delete[] name;
+            IncreasePC();
             break;
         }
 
